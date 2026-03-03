@@ -11,5 +11,5 @@ function cutCube(volume, n) {
     return true;
   } else {
     return false;
-  }
+  } 
 }
