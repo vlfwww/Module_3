@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>My Gallery</title>
+</head>
+<body>
+    <div class="app-wrapper">
+        <header class="gallery-form">
+            <form action="">
+                <input type="text" placeholder="Enter Image name..." id="imageName">
+                <input type="file" id="imageFile" accept="image/*">
+                <button id="addBtn">Add to gallery</button>
+            </form>
+        </header>
+
+    <main class="workspace">
+        <section class="image-list-container" id="image-list-container">
+            <div class="image-list" id="imagesList"></div>
+        </section>
+
+        <div class="resizer" id="resizer"></div>
+
+        <section class="preview-area" id="preview-area">
+            <button class="close-button" id="close-button"></button>
+
+            <div class="navigation-buttons">
+                <button id="previousBtn">←</button>
+                <button id="nextBtn">→</button>
+            </div>
+        </section>
+    </main>
+
+    <button class="back-to-top" id="back-to-top">↑</button>
+    <div id="coords-display" class="coords"></div>
+    </div>
+
+    <script type="module" src="./script.js"></script>
+</body>
+</html>
