@@ -1,4 +1,4 @@
-function findPrimes(start, end) {
+function findPrimes(start, end, chunkSize) { // promise, 3 параметр - chunk
   const startTime = performance.now();
   
   const limit = Math.floor(Math.sqrt(end));
@@ -20,11 +20,11 @@ function findPrimes(start, end) {
 
   let primesCount = 0;
   const total = end - start + 1;
-  const chunkSize = 1000000;
+  // const chunkSize = 1000000;
   let currentStart = start;
   let progressThreshold = 10;
 
-  function processChunk() {
+  async function processChunk() {
     if (currentStart > end) {
       const endTime = performance.now();
       const timeElapsed = (endTime - startTime).toFixed(2);
@@ -55,12 +55,18 @@ function findPrimes(start, end) {
       console.log(`Progress: ${progressThreshold}%`);
       progressThreshold += 10;
     }
-
+    
     currentStart = currentEnd + 1;
-    setTimeout(processChunk, 0);
+    // setTimeout(processChunk, 0);
   }
+
+  const arr = [];
+    for(let i =  start; i <= end; i+=chunkSize){
+      arr.push(i);
+  }
+  Promise.allSettled(arr.map(el => new Promise((resolve, reject) => resolve(processChunk()))));
 
   processChunk();
 }
 
-findPrimes(1, 100000000);
+findPrimes(1, 555555, 77);

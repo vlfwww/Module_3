@@ -1,17 +1,18 @@
-const ProductsDiscount = new WeakMap();
-
 class Product {
+  // static ProductsDiscount = new WeakMap();
+  static ProductsDiscount = new Map();
+
   constructor(name, price) {
     this.name = name;
     this.price = price;
   }
 
-  setDiscount(discount) {
-    ProductsDiscount.set(this, discount);
+  static setDiscount(product, discount) {
+    Product.ProductsDiscount.set(product, discount);
   }
 
-  getDiscount() {
-    return ProductsDiscount.get(this) || 0;
+  static getDiscount(product) {
+    return Product.ProductsDiscount.get(product) || 0;
   }
   
 }
@@ -20,26 +21,32 @@ let p1 = new Product("Apple", 100);
 let p2 = new Product("Orange", 150);
 let p3 = new Product("Banana", 80);
 
-p1.setDiscount(10);
-p2.setDiscount(15);
-p3.setDiscount(5);
+Product.setDiscount(p1, 10);
+Product.setDiscount(p2, 15);
+Product.setDiscount(p3, 5);
 
 console.log("Before deletion:");
 
-console.log(`p1 discount: ${p1.getDiscount()}%`);
-console.log(`p2 discount: ${p2.getDiscount()}%`);
-console.log(`p3 discount: ${p3.getDiscount()}%`);
+console.log(`p1 discount: ${Product.getDiscount(p1)}%`);
+console.log(`p2 discount: ${Product.getDiscount(p2)}%`);
+console.log(`p3 discount: ${Product.getDiscount(p3)}%`);
+
+console.log("\nStorage before deletion:");
+for (const [product, discount] of Product.ProductsDiscount) {
+  console.log(`${product.name}: ${discount}%`);
+}
 
 console.log("\nDeleting p2 here");
-p2 = null; 
+// p2 = null;
+Product.ProductsDiscount.delete(p2);
 
 console.log("\nAfter deletion:");
 
-console.log(`p1 discount: ${p1.getDiscount()}%`);
-console.log(`p3 discount: ${p3.getDiscount()}%`);
+console.log(`p1 discount: ${Product.getDiscount(p1)}%`);
+console.log(`p2 discount: ${Product.getDiscount(p2)}%`);
+console.log(`p3 discount: ${Product.getDiscount(p3)}%`);
 
-try {
-  console.log(`p2 discount: ${p2.getDiscount()}%`);
-} catch (e) {
-  console.log("Cannot access getDiscount of null because p2 is deleted.");
+console.log("\nStorage after deletion:");
+for (const [product, discount] of Product.ProductsDiscount) {
+  console.log(`${product.name}: ${discount}%`);
 }
