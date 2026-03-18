@@ -1,71 +1,70 @@
-function findPrimes(start, end, chunkSize = 100000) {
-  const startTime = performance.now();
+function isPrime(num) {
+  for (let i = 2; i <= Math.sqrt(num); i++) {
+    if (num % i === 0) return false;
+  }
+  return num > 1;
+}
 
-  const limit = Math.floor(Math.sqrt(end));
-  const isPrimeSmall = new Array(limit + 1).fill(true);
-  isPrimeSmall[0] = isPrimeSmall[1] = false;
-  for (let i = 2; i * i <= limit; i++) {
-    if (isPrimeSmall[i]) {
-      for (let j = i * i; j <= limit; j += i) {
-        isPrimeSmall[j] = false;
-      }
+function basePrimes(end) {
+  const primes = [];
+  for (let i = 2; i <= Math.sqrt(end); i++) {
+    if (isPrime(i)) primes.push(i);
+  }
+  return primes;
+}
+
+function processChunk(start, end, baseArray) {
+  const segment = new Array(end - start + 1).fill(true);
+
+  if (start === 0) segment[0] = false;
+  if (start <= 1) segment[1 - start] = false;
+
+  for (const p of baseArray) {
+
+    let firstMultiple = Math.max(p * p, Math.ceil(start / p) * p);
+    
+    for (let i = firstMultiple; i <= end; i += p) {
+      segment[i - start] = false;
     }
-  }
 
-  const smallPrimes = [];
-  for (let i = 2; i <= limit; i++) {
-    if (isPrimeSmall[i]) smallPrimes.push(i);
   }
+  return segment.filter((el) => el === true).length;
+}
 
+function divideIntoChunks(start, end, chunkSize) {
   const chunks = [];
+
   for (let i = start; i <= end; i += chunkSize) {
     const chunkEnd = Math.min(i + chunkSize - 1, end);
     chunks.push([i, chunkEnd]);
   }
 
-  let primesCount = 0;
-  const total = end - start + 1;
-  let processed = 0;
-  let progressThreshold = 10;
-
-  function processChunk([chunkStart, chunkEnd]) {
-    return new Promise((resolve) => {
-      const rangeLen = chunkEnd - chunkStart + 1;
-      const isPrime = new Array(rangeLen).fill(true);
-
-      for (let p of smallPrimes) {
-        let firstMultiple = Math.max(p * p, Math.ceil(chunkStart / p) * p);
-        for (let j = firstMultiple; j <= chunkEnd; j += p) {
-          isPrime[j - chunkStart] = false;
-        }
-      }
-
-      let localCount = 0;
-      for (let i = 0; i < rangeLen; i++) {
-        if (chunkStart + i >= 2 && isPrime[i]) localCount++;
-      }
-
-      resolve({ localCount, rangeLen }); 
-    });
-  }
-
-  const promises = chunks.map(chunk => processChunk(chunk));
-
-  Promise.all(promises).then(results => {
-    for (let { localCount, rangeLen } of results) {
-      primesCount += localCount;
-      processed += rangeLen; 
-      const percent = (processed / total) * 100;
-      if (percent >= progressThreshold) {
-        console.log(`Progress: ${progressThreshold}%`);
-        progressThreshold += 10;
-      }
-    }
-
-    const endTime = performance.now();
-    console.log(`Finished. Found ${primesCount} primes.`);
-    console.log(`Execution time: ${(endTime - startTime).toFixed(2)} ms`);
-  });
+  return chunks;
 }
 
-findPrimes(0, 100000000, 10000);
+async function findPrimes(start, end, chunkSize) {
+  const startTime = performance.now();
+  const chunkArray = divideIntoChunks(start, end, chunkSize);
+  const primes = basePrimes(end);
+  let processedChunks = 0;
+  const progressStep = Math.floor(chunkArray.length / 10);
+
+  const promisesArray = chunkArray.map( async ([chunkStart, chunkEnd]) => {
+    const count = processChunk(chunkStart, chunkEnd, primes);
+    processedChunks++;
+    if (processedChunks % progressStep === 0) {
+      const percent = Math.ceil((processedChunks / chunkArray.length) * 100);
+      console.log(`Progress: ${percent}%`);
+    }
+      return count;
+    });
+
+  Promise.all(promisesArray).then((results) => {
+    const totalPrimes = results.reduce((acc, val) => acc + val, 0);
+    const endTime = performance.now();
+    const timeElapsed = (endTime - startTime).toFixed(2);
+    console.log(`Finished. Found ${totalPrimes} primes.`);
+    console.log(`Execution time: ${timeElapsed} ms`);
+  });
+}
+findPrimes(0, 55555555, 100);
