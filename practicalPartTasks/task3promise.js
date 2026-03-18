@@ -80,4 +80,4 @@ async function findPrimes(start, end, chunkSize, concurrency = 4) {
   console.log(`Finished. Found ${totalPrimes} primes.`);
   console.log(`Execution time: ${timeElapsed} ms`);
 }
-findPrimes(0, 55555555, 1, 100000);
+findPrimes(0, 55555555, 1);
